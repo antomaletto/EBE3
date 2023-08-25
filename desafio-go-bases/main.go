@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
-	"github.com/antomaletto/EBE3/desafio-go-bases/internal/tickets/internal/tickets"
+	"github.com/antomaletto/EBE3/desafio-go-bases/internal/tickets"
 )
 
 const (
@@ -14,52 +13,19 @@ const (
 )
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Fatal(err)
-		}
-	}()
-	var entrada string
-
-	fmt.Print("Ingrese destino a buscar: ")
-
-	_, err := fmt.Scanln(&entrada)
-
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	reservas := tickets.Reservas{
+	reserva := tickets.Reservas{
 		Tickets: readFile(filename),
 	}
-	// Crear canales para comunicarnos con las go rutinas
-	canalTickets := make(chan tickets.Ticket)
-	defer close(canalTickets)
-	canalErr := make(chan error)
-	defer close(canalErr)
 
-	go func(chan tickets.Ticket, chan error) {
-
-		ticket, err := reservas.GetTotalTickets(entrada)
-		if err != nil {
-			canalErr <- err
-			return
-		}
-
-		canalTickets <- ticket
-
-	}(canalTickets, canalErr)
-
-	select {
-	case pr := <-canalTickets:
-		fmt.Println(pr)
-	case err := <-canalErr:
-		log.Fatal(err)
-		os.Exit(1)
-	}
+	ticketsPorPais, err := reserva.GetTotalTickets("Brazil")
+	fmt.Println(ticketsPorPais, err)
+	periodos, err := reserva.GetCountByPeriod("01")
+	fmt.Println(periodos, err)
+	porcentaje, err := reserva.PercentageDestination("Brazil")
+	fmt.Println(porcentaje, err)
 
 }
+
 func readFile(filename string) []tickets.Ticket {
 	file, err := os.ReadFile(filename)
 
