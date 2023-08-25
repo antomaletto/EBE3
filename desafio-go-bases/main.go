@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/antomaletto/EBE3/desafio-go-bases/internal/tickets/internal/tickets"
+	"github.com/antomaletto/EBE3/desafio-go-bases/internal/tickets"
 )
 
 const (
