@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
-	"github.com/antomaletto/EBE3/desafio-go-bases/internal/tickets/internal/tickets"
+	"github.com/antomaletto/EBE3/desafio-go-bases/internal/tickets"
 )
 
 const (
@@ -12,8 +13,19 @@ const (
 )
 
 func main() {
+	reserva := tickets.Reservas{
+		Tickets: readFile(filename),
+	}
+
+	ticketsPorPais, err := reserva.GetTotalTickets("Brazil")
+	fmt.Println(ticketsPorPais, err)
+	periodos, err := reserva.GetCountByPeriod("01")
+	fmt.Println(periodos, err)
+	porcentaje, err := reserva.PercentageDestination("Brazil")
+	fmt.Println(porcentaje, err)
 
 }
+
 func readFile(filename string) []tickets.Ticket {
 	file, err := os.ReadFile(filename)
 
