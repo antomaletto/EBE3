@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -12,6 +14,50 @@ const (
 )
 
 func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+	var entrada string
+
+	fmt.Print("Ingrese destino a buscar: ")
+
+	_, err := fmt.Scanln(&entrada)
+
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	reservas := tickets.Reservas{
+		Tickets: readFile(filename),
+	}
+	// Crear canales para comunicarnos con las go rutinas
+	canalTickets := make(chan tickets.Ticket)
+	defer close(canalTickets)
+	canalErr := make(chan error)
+	defer close(canalErr)
+
+	go func(chan tickets.Ticket, chan error) {
+
+		ticket, err := reservas.GetTotalTickets(entrada)
+		if err != nil {
+			canalErr <- err
+			return
+		}
+
+		canalTickets <- ticket
+
+	}(canalTickets, canalErr)
+
+	select {
+	case pr := <-canalTickets:
+		fmt.Println(pr)
+	case err := <-canalErr:
+		log.Fatal(err)
+		os.Exit(1)
+	}
 
 }
 func readFile(filename string) []tickets.Ticket {
